@@ -4,7 +4,7 @@
 
 - Mihajlo Kušljić, SW53-2016
 
-# Osnovni pomovi
+# Osnovni pojmovi
 - Matrica formata mn nad poljem F je funkcija Mmn koja preslikava skup uređenih parova {(𝑖,𝑗)|𝑖 ∈ {1,2,…,𝑚} ∧ 𝑗 ∈ {1,2,…,𝑛}} u skup F.
 - Matrice formata nn, tj. matrice koje imaju isti broj redova i kolona, nazivamo kvadratne matrice reda n.
 - Kvadratna podmatrica reda r matrice Mmn je kvadratna matrica reda r koja se dobija kada se iz matrice Mmn izbaci proizvoljnih (m - r) vrsta i (n - r) kolona.
