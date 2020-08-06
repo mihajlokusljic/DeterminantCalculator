@@ -47,7 +47,7 @@ def det_serial(matrix, begin_row_index = 0, column_indexes = []):
     return result
 
 if __name__ == "__main__":
-    test_matrix = read_matrix("../../Test data/matrica5x5.txt")
+    test_matrix = read_matrix("../../test_data/matrica5x5.txt")
     determinant = det_serial(test_matrix)
     print('det(matrix) =', determinant)
 
