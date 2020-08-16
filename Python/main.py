@@ -37,6 +37,7 @@ if __name__ == "__main__":
         print("Serial calculation result:\ndet(mat) = {}\nSerial calculation took {} ms.\n"
               .format(serial_result.determinant, serial_result.exec_time_ms))
 
+        # Parallel calculation
         parallel_result = execute_parallel_calculation(matrix, matrix_file_path)
         execution_results.append(parallel_result)
         print("Parallel calculation result:\ndet(mat) = {}\nParallel calculation took {} ms.\n"

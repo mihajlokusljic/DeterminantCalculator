@@ -10,3 +10,5 @@ matrix,n,determinant,exec_time_ms,serial,implementation
 ../test_data/matrica8x8.txt,8,333107720327411.4,203.1552791595459,False,python
 ../test_data/matrica9x9.txt,9,-6543309769587396.0,1463.0451202392578,True,python
 ../test_data/matrica9x9.txt,9,-6543309769587396.0,1648.6079692840576,False,python
+../test_data/matrica9x9.txt,9,-6543309769587396.0,1383.99076461792,True,python
+../test_data/matrica9x9.txt,9,-6543309769587396.0,812.7505779266357,False,python
