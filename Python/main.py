@@ -6,17 +6,49 @@ from IO.matrix_reader import read_matrix
 from IO.result_writer import ExecutionResults, write_results
 
 def execute_serial_calculation(matrix):
+    """
+    Calculates the determinant od given regular matrix using serial implementation.
+
+    Args:
+        matrix(list(list(float)): regular matrix for which the determinant is calculated
+
+    Return:
+        result object that can be stored in the results file (ExecutionResults)
+    """
     determinant, exec_time_ms = det_serial(matrix)
 
     return ExecutionResults(len(matrix), determinant, exec_time_ms, True)
 
 def execute_parallel_calculation(matrix):
+    """
+    Calculates the determinant od given regular matrix using parallel implementation.
+
+    Args:
+        matrix(list(list(float)): regular matrix for which the determinant is calculated
+
+    Return:
+        result object that can be stored in the results file (ExecutionResults)
+    """
     determinant, exec_time_ms = det_parallel(matrix, len(matrix))
 
     return ExecutionResults(len(matrix), determinant, exec_time_ms, False)
 
+def process_matrices():
+    """
+    This is the main method. It will load matrices from files specified in arguments to the program,
+    calculate the determinant of each matrix, both sequentially and parallel, and append data about
+    the execution times to a results file, specified as the last argument to the program. Results
+    and execution times are also printed to the console.
+    The first expected argument is the program itself. The next n arguments should be paths to
+    valid text files containing a regular matrix: first row contains a number (n) which specifies the
+    order of the matrix. The next n rows contain exactly n real numbers, separated by one or more
+    space characters. The last argument to the program is a path to a csv file where information
+    about the execution times for different matrices are stored.
 
-if __name__ == "__main__":
+    Return:
+        None
+    """
+
     arguments = sys.argv[1:]
     results_file = arguments[-1]
     execution_results = []
@@ -42,5 +74,7 @@ if __name__ == "__main__":
         if len(arguments) > 2:
             print("=" * 20)
 
-    write_results(execution_results, arguments[-1])
+    write_results(execution_results, results_file)
 
+if __name__ == "__main__":
+    process_matrices()

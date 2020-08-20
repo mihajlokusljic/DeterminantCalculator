@@ -1,6 +1,17 @@
 import re
 
 def read_matrix(matrix_file_path):
+    """
+    Loads and returns a regular matrix from given text file. The file must follow the convention:
+    first row contains a non-negative integer number (n) which specifies the order of the matrix.
+    The next n rows contain exactly n real numbers, separated by one or more space characters.
+
+    Args:
+        matrix_file_path(string): path of the file containing the matrix
+
+    Return:
+        matrix loaded into memory and ready for use (list(list(float))
+    """
     matrix = []
 
     with open(matrix_file_path, 'r') as in_file:
