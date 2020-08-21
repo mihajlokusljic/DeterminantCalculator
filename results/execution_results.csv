@@ -1,9 +1,3 @@
 n,exec_time_ms,serial,implementation
-5,0.0,true,python
-5,145.91026306152344,false,python
-8,145.78604698181152,true,python
-8,190.8261775970459,false,python
-9,1267.9150104522705,true,python
-9,525.5289077758789,false,python
-10,12901.341438293457,true,python
-10,3601.532459259033,false,python
+11,3448,true,go
+11,846,false,go
