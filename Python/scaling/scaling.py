@@ -87,8 +87,8 @@ def strong_scaling_experiment():
 def weak_scaling_experiment():
     """
     Loads matrices of different orders from predefined files and calculates
-    their determinants using parallel implementation where the number of tasks
-    equals to the order of matrix. Statistics about calculations are printed onto the console
+    their determinants using parallel implementation where the number of tasks is
+    equal to the order of matrix. Statistics about calculations are printed onto the console
     and written into a predefined results file: weak_scaling_results_python.csv.
 
     Return:

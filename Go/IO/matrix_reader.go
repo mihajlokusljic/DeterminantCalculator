@@ -7,9 +7,18 @@ import (
 	"strconv"
 )
 
-func ReadMatrix(matrix_file_path string) [][]float64 {
+// ReadMatrix loads and returns a regular matrix from given text file. The file must follow the convention:
+// first row contains a non-negative integer number (n) which specifies the order of the matrix.
+// The next n rows contain exactly n real numbers, separated by one or more space characters.
+//
+// Args:
+// 	matrixFilePath: path of the file containing the matrix
+//
+// Return:
+// 	matrix loaded into memory and ready for use
+func ReadMatrix(matrixFilePath string) [][]float64 {
 
-	f, err := os.Open(matrix_file_path)
+	f, err := os.Open(matrixFilePath)
 
 	if err != nil {
 		log.Fatal(err)

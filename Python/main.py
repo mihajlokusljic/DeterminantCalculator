@@ -7,7 +7,8 @@ from IO.result_writer import ExecutionResults, write_results
 
 def execute_serial_calculation(matrix):
     """
-    Calculates the determinant od given regular matrix using serial implementation.
+    Calculates the determinant of given regular matrix using serial implementation
+    and measures the execution time.
 
     Args:
         matrix(list(list(float)): regular matrix for which the determinant is calculated
@@ -21,7 +22,8 @@ def execute_serial_calculation(matrix):
 
 def execute_parallel_calculation(matrix):
     """
-    Calculates the determinant od given regular matrix using parallel implementation.
+    Calculates the determinant od given regular matrix using parallel implementation
+    and measures the execution time.
 
     Args:
         matrix(list(list(float)): regular matrix for which the determinant is calculated
