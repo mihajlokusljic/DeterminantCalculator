@@ -17,6 +17,13 @@ def measure_exec_time(decorated_func):
         result = decorated_func(*args, **kwargs)
         end_time = time.time()
         exec_time_ms = (end_time - start_time) * 1000
-        return result, exec_time_ms
+        try:
+            ret = []
+            for res_value in result:
+                ret.append(res_value)
+            ret.append(exec_time_ms)
+            return ret
+        except:
+            return [result, exec_time_ms]
 
     return decorator

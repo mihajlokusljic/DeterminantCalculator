@@ -50,7 +50,7 @@ def serial_minor_calc(minor_calc_task):
     Return:
         None
     """
-    result = minor_calc(minor_calc_task.matrix, 1, minor_calc_task.column_indexes)
+    result, _ = minor_calc(minor_calc_task.matrix, 1, minor_calc_task.column_indexes)
     minor_calc_task.publish_result(result)
 
 def minors_calculation(calculation_tasks):

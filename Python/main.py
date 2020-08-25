@@ -16,7 +16,7 @@ def execute_serial_calculation(matrix):
     Return:
         result object that can be stored in the results file (ExecutionResults)
     """
-    determinant, exec_time_ms = det_serial(matrix)
+    determinant, _, exec_time_ms = det_serial(matrix)
 
     return ExecutionResults(len(matrix), determinant, exec_time_ms, True)
 
