@@ -51,7 +51,7 @@ func main() {
 //     result object that can be stored in the results file
 func serialCalculation(matrix [][]float64) IO.ExecutionResult {
 	start := time.Now()
-	var det float64 = determinantCalc.DetSerial(matrix)
+	det, _ := determinantCalc.DetSerial(matrix)
 	elapsed := time.Since(start)
 	duration := elapsed.Milliseconds()
 	fmt.Printf("Serial calculation result:\ndet(mat) = %f\n", det)

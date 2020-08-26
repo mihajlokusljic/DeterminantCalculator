@@ -17,8 +17,11 @@ class Scaling_result:
 
     Attributes:
         matrix_order (int): order of matrix for which the determinant is calculated
-        tasks_num (int): number of processes used during calculation
-        exec_time_ms (float): duration of the calculation in milliseconds
+        serial_exec_time_ms (float): execution time of serial implementation in milliseconds
+        parallel_tasks_num (int): number of processes used in parallel calculation)
+        parallel_exec_time_ms (float): execution time of parallel implementation in milliseconds
+        achieved_speedup (float): actual speedup calculated using serial and parallel execution time
+        max_theoretical_speedup (float): maximum possible speedup considering serial and parallel portions of code
     """
     def __init__(self, matrix_order, serial_exec_time_ms, parallel_tasks_num, parallel_exec_time_ms,
                  achieved_speedup, max_speedup):
@@ -35,8 +38,11 @@ def write_scaling_results(results_file_path, scaling_results):
     """
     Populates a given CSV file with given results. If file does not exists it will be created.
     The header contains: matrix_order (order of matrix for which the determinant is calculated),
-    number_of_tasks (number of processes used in calculation), exec_time_ms (duration of the calculation
-    in milliseconds).
+    serial_exec_time_ms (execution time of serial implementation in milliseconds),
+    parallel_tasks_num (number of processes used in parallel calculation), parallel_exec_time_ms
+    (execution time of parallel implementation in milliseconds), achieved_speedup (actual speedup calculated using
+    serial and parallel execution time), max_theoretical_speedup (maximum possible speedup considering serial and
+    parallel portions of code).
 
     Args:
         results_file_path (string): path of the CSV file to hold results
@@ -97,6 +103,7 @@ def strong_scaling_experiment():
     SERIAL_CODE_SHARE = 1 - PARALLEL_CODE_SHARE
     print("Serial determinant calculation of matrix of order {} took {} ms."
           .format(len(matrix), serial_exec_time_ms))
+    print("Execution of code that can be run in parallel took {} ms.".format(potential_parallel_code_exec_time_ms))
     print("Parallel code share is: {}\nSerial code share is: {}\n".format(PARALLEL_CODE_SHARE, SERIAL_CODE_SHARE))
 
 

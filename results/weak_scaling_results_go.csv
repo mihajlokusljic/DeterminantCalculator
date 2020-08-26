@@ -1,7 +1,7 @@
-matrix_order,number_of_tasks,exec_time_ms
-3,3,0
-5,5,0
-8,8,1
-9,9,10
-10,10,83
-11,11,830
+matrix_order,serial_exec_time_ms,parallel_tasks_num,parallel_exec_time_ms,achieved_speedup,max_theoretical_speedup
+3,0,3,0,1.000000,3.000000
+5,0,5,0,1.000000,5.000000
+8,3,8,2,1.500000,8.000000
+9,29,9,8,3.625000,9.000000
+10,326,10,88,3.704545,10.000000
+11,3700,11,882,4.195011,11.000000

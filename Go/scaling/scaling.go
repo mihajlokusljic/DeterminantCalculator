@@ -16,22 +16,34 @@ const strongScalingMatrixOrder = 10
 
 var availableMatrixOrders = [...]int{3, 5, 8, 9, 10, 11}
 
-// ScalingResult holds information about parallel determinant calculation to be stored in a results file.
+var serialCodeShare float64 = 0
+var parallelCodeShare float64 = 1
+
+// ScalingResult holds information about determinant calculation for matrix of certain order to be stored in a results file.
 //
 // Attributes:
-//     MatrixOrder: order of matrix for which the determinant is calculated
-//     TasksNum: number of processes used during calculation
-//     ExecTimeMs: duration of the calculation in milliseconds
+// 	MatrixOrder: order of matrix for which the determinant is calculated
+// 	SerialExecTimeMs: execution time of serial implementation in milliseconds
+// 	ParallelTasksNum: number of processes used in parallel calculation)
+// 	ParallelExecTimeMs: execution time of parallel implementation in milliseconds
+// 	AchievedSpeedup: actual speedup calculated using serial and parallel execution time
+// 	MaxTheoreticalSpeedup: maximum possible speedup considering serial and parallel portions of code
 type ScalingResult struct {
-	MatrixOrder int
-	TasksNum    int
-	ExecTimeMs  int64
+	MatrixOrder           int
+	SerialExecTimeMs      int64
+	ParallelTasksNum      int
+	ParallelExecTimeMs    int64
+	AchievedSpeedup       float64
+	MaxTheoreticalSpeedup float64
 }
 
 // Populates a given CSV file with given results. If file does not exists it will be created.
 // The header contains: matrix_order (order of matrix for which the determinant is calculated),
-// number_of_tasks (number of processes used in calculation), exec_time_ms (duration of the calculation
-// in milliseconds).
+// serial_exec_time_ms (execution time of serial implementation in milliseconds),
+// parallel_tasks_num (number of processes used in parallel calculation), parallel_exec_time_ms
+// (execution time of parallel implementation in milliseconds), achieved_speedup (actual speedup calculated using
+// serial and parallel execution time), max_theoretical_speedup (maximum possible speedup considering serial and
+// parallel portions of code).
 //
 // Args:
 // 	resultsFilePath: path of the CSV file to hold results
@@ -46,10 +58,11 @@ func writeScalingResults(resultsFilePath string, scalingResults []ScalingResult)
 	}
 	defer resultsFile.Close()
 
-	resultsFile.WriteString("matrix_order,number_of_tasks,exec_time_ms\n")
+	resultsFile.WriteString("matrix_order,serial_exec_time_ms,parallel_tasks_num,parallel_exec_time_ms,achieved_speedup,max_theoretical_speedup\n")
 	for _, res := range scalingResults {
-		resultsFile.WriteString(fmt.Sprintf("%d,%d,%d\n",
-			res.MatrixOrder, res.TasksNum, res.ExecTimeMs))
+		resultsFile.WriteString(fmt.Sprintf("%d,%d,%d,%d,%f,%f\n",
+			res.MatrixOrder, res.SerialExecTimeMs, res.ParallelTasksNum, res.ParallelExecTimeMs,
+			res.AchievedSpeedup, res.MaxTheoreticalSpeedup))
 	}
 }
 
@@ -67,6 +80,14 @@ func loadTestMatrix(matrixOrder int) [][]float64 {
 	return matrix
 }
 
+func maxSpeedupAmdahl(processesNum int) float64 {
+	return 1.0 / (serialCodeShare + parallelCodeShare/float64(processesNum))
+}
+
+func maxSpeedupGustafson(processesNum int) float64 {
+	return serialCodeShare + parallelCodeShare*float64(processesNum)
+}
+
 // Loads a predefined matrix for strong scaling and calculates the determinant
 // using parallel implementation with number of tasks ranging from one to the
 // order of the matrix. Statistics about calculations are printed onto the console
@@ -75,27 +96,58 @@ func loadTestMatrix(matrixOrder int) [][]float64 {
 // Return:
 // 	nil
 func strongScalingExperiment() {
-	fmt.Println("Strong scaling experiment:\n")
+	fmt.Println("==========================")
+	fmt.Println("Strong scaling experiment:")
+	fmt.Println("==========================\n\n")
+
 	var matrix [][]float64 = loadTestMatrix(strongScalingMatrixOrder)
 	var results []ScalingResult
 
-	for tasksNum := 1; tasksNum <= strongScalingMatrixOrder; tasksNum++ {
+	start := time.Now()
+	_, potentialParallelCodeExecTimeMs := determinantCalc.DetSerial(matrix)
+	elapsed := time.Since(start)
+	serialExecTimeMs := elapsed.Milliseconds()
+	parallelCodeShare = float64(potentialParallelCodeExecTimeMs) / float64(serialExecTimeMs)
+	serialCodeShare = 1 - parallelCodeShare
+
+	fmt.Printf("Serial determinant calculation of matrix of order %d took %d ms.\n",
+		strongScalingMatrixOrder, serialExecTimeMs)
+	fmt.Printf("Execution of code that can be run in parallel took %d ms.\n", potentialParallelCodeExecTimeMs)
+	fmt.Printf("Parallel code share is: %f\nSerial code share is: %f\n\n", parallelCodeShare, serialCodeShare)
+
+	for tasksNum := 2; tasksNum <= strongScalingMatrixOrder; tasksNum++ {
 		start := time.Now()
 		determinantCalc.DetParallel(matrix, tasksNum)
 		elapsed := time.Since(start)
-		duration := elapsed.Milliseconds()
+		parallelExecTimeMs := elapsed.Milliseconds()
+		achievedSpeedup := calculateSpeedup(serialExecTimeMs, parallelExecTimeMs)
+		maxSpeedup := maxSpeedupAmdahl(tasksNum)
+
 		scalingResult := ScalingResult{
-			ExecTimeMs:  duration,
-			MatrixOrder: strongScalingMatrixOrder,
-			TasksNum:    tasksNum,
+			AchievedSpeedup:       achievedSpeedup,
+			MatrixOrder:           strongScalingMatrixOrder,
+			MaxTheoreticalSpeedup: maxSpeedup,
+			ParallelExecTimeMs:    parallelExecTimeMs,
+			ParallelTasksNum:      tasksNum,
+			SerialExecTimeMs:      serialExecTimeMs,
 		}
 		results = append(results, scalingResult)
 
 		fmt.Printf("Parallel determinant calculation of matrix of order %d with %d tasks took %d ms.\n",
-			strongScalingMatrixOrder, tasksNum, duration)
+			strongScalingMatrixOrder, tasksNum, parallelExecTimeMs)
+		fmt.Printf("Achieved speedup is: %fX.\nMaximum speedup according to Amdahl’s law is: %fX.\n\n",
+			achievedSpeedup, maxSpeedup)
 	}
 
 	writeScalingResults(fmt.Sprintf("%s/strong_scaling_results_go.csv", resultsBasePath), results)
+	fmt.Println("Successfully finished strong scaling experiment.")
+}
+
+func calculateSpeedup(serialExecTimeMs int64, parallelExecTimeMs int64) float64 {
+	if serialExecTimeMs == 0 && parallelExecTimeMs == 0 {
+		return 1.0
+	}
+	return float64(serialExecTimeMs) / float64(parallelExecTimeMs)
 }
 
 // Loads matrices of different orders from predefined files and calculates
@@ -106,27 +158,46 @@ func strongScalingExperiment() {
 // Return:
 // 	nil
 func weakScalingExperiment() {
-	fmt.Println("\nWeak scaling experiment:\n")
+	fmt.Println("\n\n========================")
+	fmt.Println("Weak scaling experiment:")
+	fmt.Println("========================\n\n")
 	var results []ScalingResult
 
 	for _, n := range availableMatrixOrders {
 		matrix := loadTestMatrix(n)
 
 		start := time.Now()
-		determinantCalc.DetParallel(matrix, n)
+		determinantCalc.DetSerial(matrix)
 		elapsed := time.Since(start)
-		duration := elapsed.Milliseconds()
+		serialExecTimeMs := elapsed.Milliseconds()
+		fmt.Printf("Serial determinant calculation of matrix of order %d took %d ms.\n", n, serialExecTimeMs)
+
+		start = time.Now()
+		determinantCalc.DetParallel(matrix, n)
+		elapsed = time.Since(start)
+		parallelExecTimeMs := elapsed.Milliseconds()
+
+		achievedSpeedup := calculateSpeedup(serialExecTimeMs, parallelExecTimeMs)
+		maxSpeedup := maxSpeedupGustafson(n)
+
 		scalingResult := ScalingResult{
-			ExecTimeMs:  duration,
-			MatrixOrder: n,
-			TasksNum:    n,
+			AchievedSpeedup:       achievedSpeedup,
+			MatrixOrder:           n,
+			MaxTheoreticalSpeedup: maxSpeedup,
+			ParallelExecTimeMs:    parallelExecTimeMs,
+			ParallelTasksNum:      n,
+			SerialExecTimeMs:      serialExecTimeMs,
 		}
 		results = append(results, scalingResult)
 
-		fmt.Printf("Parallel determinant calculation of matrix of order %d with %d tasks took %d ms.\n", n, n, duration)
+		fmt.Printf("Parallel determinant calculation of matrix of order %d with %d tasks took %d ms.\n",
+			n, n, parallelExecTimeMs)
+		fmt.Printf("Achieved speedup is: %fX.\nMaximum speedup according to Gustafson’s law is: %fX.\n\n",
+			achievedSpeedup, maxSpeedup)
 	}
 
 	writeScalingResults(fmt.Sprintf("%s/weak_scaling_results_go.csv", resultsBasePath), results)
+	fmt.Println("Successfully finished weak scaling experiment.")
 }
 
 func main() {

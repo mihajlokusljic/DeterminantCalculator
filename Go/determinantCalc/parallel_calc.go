@@ -37,7 +37,7 @@ func (mct *MinorCalcTask) publishResult(result float64) {
 // Return:
 //     nil
 func calculateMinor(minorCalcTask MinorCalcTask) {
-	result := minorCalcSerial(minorCalcTask.Matrix, 1, minorCalcTask.ColumnIndexes)
+	result, _ := minorCalcSerial(minorCalcTask.Matrix, 1, minorCalcTask.ColumnIndexes, false)
 	minorCalcTask.publishResult(result)
 }
 
